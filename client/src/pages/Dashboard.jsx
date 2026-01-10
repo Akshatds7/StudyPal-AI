@@ -30,33 +30,40 @@ function Dashboard() {
 
   /* ================= GENERATE FULL PLAN ================= */
   const generatePlan = async () => {
-    setLoading(true);
-    setPlan([]);
+  setLoading(true);
+  setPlan([]);
 
-    try {
-      const res = await axios.post(API_URL, {
-        subjects: subjects.split(",").map((s) => s.trim()),
+  try {
+    const res = await axios.post(
+      "https://studypal-ai.onrender.com/api/generate-plan",
+      {
+        subjects: subjects.split(",").map(s => s.trim()),
         hours: Number(hours),
         days: Number(days),
-      });
+      }
+    );
 
-      const splitDays = res.data.plan
-        .split(/\nDay\s+\d+/)
-        .filter(Boolean)
-        .map((text, index) => ({
-          day: index + 1,
-          content: text.trim(),
-        }));
+    const raw = res.data.plan;
 
-      setPlan(splitDays);
-      setCompletedDays([]);
-      setStreak(0);
-    } catch (err) {
-      alert("Error generating plan");
-    } finally {
-      setLoading(false);
-    }
-  };
+    // ✅ Robust parsing
+    const parsed = raw
+      .split(/Day\s+\d+:/)
+      .filter(Boolean)
+      .map((text, index) => ({
+        day: index + 1,
+        content: text.trim(),
+      }));
+
+    setPlan(parsed);
+    setCompletedDays([]);
+    setStreak(0);
+  } catch (error) {
+    console.error(error);
+    alert("Failed to generate plan");
+  } finally {
+    setLoading(false);
+  }
+};
 
   /* ================= SINGLE DAY REGEN ================= */
   const regenerateDay = async (dayNumber) => {
