@@ -1,63 +1,235 @@
-body {
-  margin: 0;
-  font-family: 'Segoe UI', sans-serif;
-  background: #f0f8ff;
-}
-
-.dashboard-container {
+/* ================================
+   GLOBAL WRAPPER
+================================ */
+.dashboard-wrapper {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #eef2ff, #f8fafc);
   display: flex;
-  flex-direction: column;
+  justify-content: center;
   align-items: center;
-  padding: 40px 20px;
-  max-width: 600px;
-  margin: 0 auto;
+  padding: 40px;
+  transition: background 0.3s ease;
 }
 
-h1 {
-  font-size: 28px;
-  margin-bottom: 30px;
-  color: #222;
+.dashboard-wrapper.dark {
+  background: linear-gradient(135deg, #020617, #020617);
 }
 
-.form {
+/* ================================
+   MAIN CARD
+================================ */
+.dashboard-card {
+  background: #ffffff;
+  width: 480px;
+  border-radius: 16px;
+  padding: 28px;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.1);
+  transition: background 0.3s ease, color 0.3s ease;
+}
+
+.dashboard-card.wide {
+  width: 760px;
+}
+
+.dashboard-wrapper.dark .dashboard-card {
+  background: #020617;
+  color: #e5e7eb;
+}
+
+/* ================================
+   HEADER
+================================ */
+.top-bar {
   display: flex;
-  flex-direction: column;
-  gap: 15px;
-  width: 100%;
+  justify-content: space-between;
+  align-items: center;
 }
 
-input {
-  padding: 10px;
-  font-size: 16px;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  width: 100%;
+.top-bar h2 {
+  margin: 0;
+  font-size: 22px;
 }
 
-button {
-  background-color: #007bff;
-  color: white;
-  padding: 12px;
-  font-size: 16px;
+.top-bar button {
+  background: none;
   border: none;
-  border-radius: 6px;
+  font-size: 22px;
   cursor: pointer;
-  transition: background 0.2s ease;
 }
 
-button:hover {
-  background-color: #0056b3;
-}
-
-.output {
-  margin-top: 30px;
-  padding: 20px;
-  background: #fff;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  white-space: pre-wrap;
+/* ================================
+   INPUTS
+================================ */
+.dashboard-card input {
   width: 100%;
-  min-height: 150px;
-  font-size: 15px;
-  color: #333;
+  padding: 12px 14px;
+  margin-top: 12px;
+  border-radius: 10px;
+  border: 1px solid #e5e7eb;
+  font-size: 14px;
+}
+
+.dashboard-wrapper.dark input {
+  background: #020617;
+  color: #e5e7eb;
+  border: 1px solid #334155;
+}
+
+/* ================================
+   BUTTONS
+================================ */
+.dashboard-card button {
+  width: 100%;
+  padding: 12px;
+  margin-top: 14px;
+  border-radius: 10px;
+  border: none;
+  font-size: 14px;
+  cursor: pointer;
+  transition: transform 0.1s ease, opacity 0.2s ease;
+}
+
+.dashboard-card button:hover {
+  transform: translateY(-1px);
+  opacity: 0.95;
+}
+
+.dashboard-card button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Primary */
+.dashboard-card button:not(.logout-btn):not(.pdf-btn) {
+  background: #2563eb;
+  color: white;
+}
+
+/* PDF */
+.pdf-btn {
+  background: #9333ea;
+  color: white;
+}
+
+/* Logout */
+.logout-btn {
+  background: #ef4444;
+  color: white;
+}
+
+/* ================================
+   STATS
+================================ */
+.stats {
+  margin: 12px 0;
+  font-weight: 600;
+  color: #2563eb;
+}
+
+.dashboard-wrapper.dark .stats {
+  color: #38bdf8;
+}
+
+/* ================================
+   CALENDAR GRID
+================================ */
+.calendar {
+  margin-top: 24px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+}
+
+/* ================================
+   DAY CARD
+================================ */
+.day-card {
+  background: #f1f5f9;
+  border-radius: 14px;
+  padding: 14px;
+  border-left: 4px solid #2563eb;
+  transition: transform 0.15s ease;
+}
+
+.day-card:hover {
+  transform: translateY(-3px);
+}
+
+.day-card h4 {
+  margin: 0 0 6px 0;
+}
+
+.day-card p {
+  font-size: 13px;
+  line-height: 1.5;
+  white-space: pre-wrap;
+}
+
+/* Completed day */
+.day-card.done {
+  background: #dcfce7;
+  border-left-color: #16a34a;
+}
+
+/* Dark mode card */
+.dashboard-wrapper.dark .day-card {
+  background: #020617;
+  border-left-color: #38bdf8;
+}
+
+.dashboard-wrapper.dark .day-card.done {
+  background: #052e16;
+  border-left-color: #22c55e;
+}
+
+/* ================================
+   DAY ACTIONS
+================================ */
+.day-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.day-actions button {
+  flex: 1;
+  padding: 8px;
+  font-size: 12px;
+  border-radius: 8px;
+}
+
+/* ================================
+   MOBILE RESPONSIVE
+================================ */
+@media (max-width: 768px) {
+  .dashboard-card.wide {
+    width: 100%;
+  }
+}
+@media (max-width: 480px) {
+  .dashboard-wrapper {
+    padding: 20px;
+  }
+
+  .top-bar h2 {
+    font-size: 18px;
+  }
+}
+.dark {
+  background: #0f172a;
+  color: #e5e7eb;
+  min-height: 100vh;
+}
+
+.dark input {
+  background: #1e293b;
+  color: white;
+  border: 1px solid #334155;
+}
+
+.dark .plan-box {
+  background: #020617;
+}
+.dark .plan-box.completed {
+  background: #052e16;
 }
