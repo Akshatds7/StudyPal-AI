@@ -1,60 +1,46 @@
 import express from "express";
+import cors from "cors";
 import dotenv from "dotenv";
-import cohere from "cohere-ai";
+import session from "express-session";
+import passport from "passport";
+
+import "./config/passport.js";
+import authRoutes from "./routes/auth.js";
+import aiRoutes from "./routes/ai.js";
 
 dotenv.config();
-cohere.init(process.env.COHERE_API_KEY);
 
-const router = express.Router();
+const app = express();
 
-/* 🔍 Health check */
-router.get("/test", (req, res) => {
-  res.json({ message: "AI route working" });
+/* ===== MIDDLEWARE ===== */
+app.use(cors({
+  origin: "http://localhost:5173",
+  credentials: true,
+}));
+
+app.use(express.json());
+
+app.use(session({
+  secret: process.env.SESSION_SECRET || "dev_secret",
+  resave: false,
+  saveUninitialized: false,
+}));
+
+app.use(passport.initialize());
+app.use(passport.session());
+
+/* ===== ROUTES ===== */
+app.use("/auth", authRoutes);
+app.use("/api", aiRoutes);
+
+/* ===== HEALTH CHECK ===== */
+app.get("/health", (req, res) => {
+  res.json({ status: "OK" });
 });
 
-/* 🤖 Generate Study Plan */
-router.post("/generate-plan", async (req, res) => {
-  try {
-    const { subjects, hours, days } = req.body;
+/* ===== START SERVER ===== */
+const PORT = process.env.PORT || 5000;
 
-    if (!subjects || !hours || !days) {
-      return res.status(400).json({ error: "Missing required fields" });
-    }
-
-    const prompt = `
-Create a ${days}-day study plan.
-
-Subjects: ${subjects.join(", ")}
-Study hours per day: ${hours}
-
-Rules:
-- Divide time evenly
-- Be concise
-- Output strictly in this format:
-
-Day 1:
-- Topic 1
-- Topic 2
-
-Day 2:
-- Topic 1
-- Topic 2
-`;
-
-    const response = await cohere.generate({
-      model: "command",
-      prompt,
-      max_tokens: 600,
-      temperature: 0.6,
-    });
-
-    const plan = response.body.generations[0].text.trim();
-
-    res.json({ plan });
-  } catch (error) {
-    console.error("❌ AI ERROR:", error);
-    res.status(500).json({ error: "AI generation failed" });
-  }
+app.listen(PORT, () => {
+  console.log(`🚀 Server running on port ${PORT}`);
 });
-
-export default router;

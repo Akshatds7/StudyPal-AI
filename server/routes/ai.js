@@ -1,49 +1,57 @@
 import express from "express";
 import dotenv from "dotenv";
-import cohere from "cohere-ai";
+import { CohereClient } from "cohere-ai";
 
 dotenv.config();
-cohere.init(process.env.COHERE_API_KEY);
 
 const router = express.Router();
 
+const cohere = new CohereClient({
+  token: process.env.COHERE_API_KEY,
+});
+
 router.post("/generate-plan", async (req, res) => {
   try {
+    console.log("REQ BODY:", req.body);
+
     const { subjects, hours, days } = req.body;
 
     if (!subjects || !hours || !days) {
-      return res.status(400).json({ error: "Missing fields" });
+      return res.status(400).json({ error: "Missing required fields" });
     }
 
     const prompt = `
 Create a ${days}-day study plan.
 
 Subjects: ${subjects.join(", ")}
-Hours per day: ${hours}
+Study hours per day: ${hours}
 
-Format strictly as:
+Rules:
+- Divide time evenly
+- Be concise
+- Use bullet points
+- STRICT format:
+
 Day 1:
-- Topic
-- Topic
+- Topic A
+- Topic B
 
 Day 2:
-- Topic
-- Topic
+- Topic A
+- Topic B
 `;
 
-    const response = await cohere.generate({
-      model: "command",
-      prompt,
-      max_tokens: 600,
+    const response = await cohere.chat({
+      model: "command-r-plus-08-2024", // ✅ THIS IS THE KEY
+      message: prompt,
       temperature: 0.6,
     });
 
-    const plan = response.body.generations[0].text.trim();
+    res.json({ plan: response.text });
 
-    res.json({ plan });
-  } catch (err) {
-    console.error("AI ERROR:", err);
-    res.status(500).json({ error: "AI failed" });
+  } catch (error) {
+    console.error("❌ COHERE CHAT ERROR:", error);
+    res.status(500).json({ error: "AI generation failed" });
   }
 });
 
